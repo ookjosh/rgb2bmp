@@ -69,7 +69,7 @@ public class rgb2bmp {
             Files.createDirectory(check);
             System.out.println("Created output directory");
         } catch (IOException e) {
-            System.out.println("Failed to create directory");
+            System.out.println("Failed to create directory"); // TODO: This fails if directory exists already!
             System.exit(2);
 
         }
