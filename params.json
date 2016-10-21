@@ -1,0 +1,6 @@
+{
+  "name": "Rgb2bmp",
+  "tagline": "Convert Raspberry Pi Camera's RGB output to a bitmap file.",
+  "body": "# rgb2bmp\r\nConvert Raspberry Pi Camera's RGB output to a bitmap file.\r\n\r\nUnable to find a convenient source of information on how to process the Raspberry Pi Camera's RGB output\r\nthrough the program raspiyuv, this program was born! It will take the resulting file from ``raspiyuv -rgb``\r\nand convert it into a ``.bmp`` bitmap file.\r\n\r\n##Usage\r\n\r\nDownload the jar release (preferably) or compile this to a .class file.\r\nCd to the directory of the jar/class\r\n\r\nAs Jar:\r\nThen run ``java -jar rgb2bmp PATH/TO/IMAGE/`` and let it go! Use the complete path to the **folder**, not a\r\nspecific image. This will create an ``output`` directory in that path and save the images there.\r\n\r\nAs class:\r\nThen run ``java rgb2bmp PATH/TO/IMAGE``. Otherwise the same as above.\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
