@@ -34,42 +34,68 @@ import java.nio.file.Paths;
 import java.nio.file.Path;
 
 /**
-  * This program takes the output of raspiyuv -rgb and converts it into a
-  * regular bitmap file. It currently assumes that the extension of the files
-  * is '.data' but this will be made flexible in the future. This will create
-  * an 'output' folder in the specified directory, where the bitmaps will be
-  * placed.
-  */
+ * This program takes the output of raspiyuv -rgb and converts it into a
+ * regular bitmap file. It currently assumes that the extension of the files
+ * is '.data' but this will be made flexible in the future. This will create
+ * an 'output' folder in the specified directory, where the bitmaps will be
+ * placed.
+ */
 public class rgb2bmp {
 
-    public rgb2bmp(String args[]) {
+    final String outFolder = "/output/";
 
+    public rgb2bmp(final String args[]) {
+
+        if (args.length > 1) {
+            System.out.println("Using extension: '" + args[1] + "'");
+        }
 
         File dir = new File("."); // Default to current location
         try {
             dir = new File(args[0]);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) { // If arguments weren't passed.
             printUsage();
             System.exit(0);
         }
 
-        // TODO: Add second optional argument for file extension.
+        // Get list of files with specified extension.
         File[] files = dir.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.endsWith(".data");
+                if (!(args.length > 1)) {   // If nothing specified default to '.data'
+                    return name.endsWith(".data");
+                }
+                else {
+                    return name.endsWith(args[1]);
+                }
             }
         });
 
 
+        // If list is zero length, exit
+        if (files.length == 0) {
+            System.out.println("No files with matching extension. Exiting.");
+            System.exit(0);
+        }
+
+
         // Create an output folder.
+
         // This prevents issues if args[0] ends in "/" or not.
         Path check = Paths.get(dir.getPath() + "/" + "output");
+     
+        if (Files.exists(check)) {
+            System.out.println("This: " + check.toString());
+            System.out.println("directory exists! Please delete it or rename.");
+            System.out.println("We don't want to overwrite anything important!");
+            System.exit(3);
+        }
+
         try {
             Files.createDirectory(check);
             System.out.println("Created output directory");
         } catch (IOException e) {
-            System.out.println("Failed to create directory"); // TODO: This fails if directory exists already!
+            System.out.println("Failed to create directory");
             System.exit(2);
 
         }
@@ -131,13 +157,17 @@ public class rgb2bmp {
 
         }
 
-        // Bad practice: TODO: Use regex for substr and get rid of this hardcode.
-        String outpath = path.getParent().toString() + "/output" + "/" + path.getFileName();
-        outpath = outpath.substring(0, outpath.length() - 5);
+        // Generate a path to our new file
+        String outpath = path.getParent().toString() + outFolder;
+        String filename = path.getFileName().toString();
+        filename = filename.substring(0, filename.lastIndexOf(".")); // Strip extension
+        filename = filename + ".bmp"; // Append new extension
+        outpath += filename; // Full path to file
+
 
 
         // Attempt to write an image file.
-        File output = new File(outpath + ".bmp");
+        File output = new File(outpath);
         try {
             ImageIO.write(image, "bmp", output);
             System.out.println("Successfully converted " + path.getFileName() + " to " + "bmp");
@@ -152,17 +182,17 @@ public class rgb2bmp {
     public void printUsage() {
 
         System.out.println("RGB to BMP Conversion Tool");
-        System.out.println("Usage for class: java rgb2bmp /FULL/PATH/TO/IMAGES/");
-        System.out.println("Usage for Jar: java -jar rgb2bmp.jar /FULL/PATH/TO/IMAGES/");
+        System.out.println("Usage for class: java rgb2bmp /FULL/PATH/TO/IMAGES/ [.extension]");
+        System.out.println("Usage for Jar: java -jar rgb2bmp.jar /FULL/PATH/TO/IMAGES/ [.extension]");
+        System.out.println("Example: java -jar rgb2bmp.jar /home/bob/rawimages/ .rgb");
         System.out.println();
         System.out.println("It will place images in a new subfolder called 'output'");
-        System.out.println("In the image directory, with extension '.data.bmp'");
-        System.out.println("Note: the '.data' part has no effect. These are BMPs.");
+        System.out.println("In the image directory, with extension '.bmp'");
         System.out.println();
         System.out.println();
         System.out.println("Note: This assumes input files are of type '.data'");
         System.out.println("and are a sequence of bytes in RGB order.");
-        System.out.println("If this is not the case let me know please!");
+        System.out.println("Use the optional parameter to define the extension.");
     }
 
 
@@ -176,3 +206,4 @@ public class rgb2bmp {
 
     }
 }
+
